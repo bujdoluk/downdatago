@@ -1,0 +1,6 @@
+tmp/
+bin/
+build-errors.log
+.air.toml
+Dockerfile
+.dockerignore

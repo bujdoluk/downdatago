@@ -1,0 +1,14 @@
+import Footer from "@/components/landing-page/Footer";
+import LandingNavbar from "@/components/landing-page/LandingNavbar";
+import FaqSection from "@/components/landing-page/FaqSection";
+
+export default function FaqContent() {
+  return (
+    <div className="flex min-h-full flex-1 flex-col">
+      <LandingNavbar />
+      <h1 className="sr-only">FAQ</h1>
+      <FaqSection />
+      <Footer />
+    </div>
+  );
+}

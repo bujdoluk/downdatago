@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in your .env (see .env.example)}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your .env (see .env.example)}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in your .env (see .env.example)}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:?Set POSTGRES_USER in your .env (see .env.example)} -d ${POSTGRES_DB:?Set POSTGRES_DB in your .env (see .env.example)}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    image: arigaio/atlas:latest
+    working_dir: /workspace
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in your .env (see .env.example)}
+    volumes:
+      - ./backend/atlas.hcl:/workspace/atlas.hcl:ro
+      - ./backend/schema.hcl:/workspace/schema.hcl:ro
+      - ./backend/migrations:/workspace/migrations:ro
+    command: ["migrate", "apply", "--env", "docker"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in your .env (see .env.example)}
+    ports:
+      - "${BACKEND_PORT:?Set BACKEND_PORT in your .env (see .env.example)}:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:?Set FRONTEND_PORT in your .env (see .env.example)}:3000"
+
+volumes:
+  db_data:
