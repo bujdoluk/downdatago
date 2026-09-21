@@ -1,0 +1,6 @@
+services:
+  backend:
+    image: ghcr.io/bujdoluk/downdatago-backend:latest
+
+  frontend:
+    image: ghcr.io/bujdoluk/downdatago-frontend:latest
