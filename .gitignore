@@ -3,4 +3,4 @@ Thumbs.db
 .vscode/
 .idea/
 .env
-.claude/
+.claude/scheduled_tasks.lock
